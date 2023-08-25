@@ -24,11 +24,13 @@ void Renderer::OnResize(uint32_t width, uint32_t height)
 
 void Renderer::Render()
 {
-	//Iterate through and render every pixel
+	float aspeectRatio = m_FinalImage->GetWidth() / (float)m_FinalImage->GetHeight();
+	//Iterate through and render every pixel (THE MEAT AND POTATOES)
 	for (uint32_t y = 0; y < m_FinalImage->GetHeight(); y++) {
 		for (uint32_t x = 0; x < m_FinalImage->GetWidth(); x++) {
 			glm::vec2 coord = { x / (float)m_FinalImage->GetWidth(), y / (float)m_FinalImage->GetHeight() };
 			coord = coord * 2.0f - 1.0f; //Maps coordinate -1 to 1
+			coord.x *= aspeectRatio;
 			m_ImageData[x + y * m_FinalImage->GetWidth()] = PerPixel(coord);
 		}
 	}
@@ -60,13 +62,17 @@ uint32_t Renderer::PerPixel(glm::vec2 coord)
 	//Quadratic Discriminant:
 	// b^2 - 4ac
 	float discriminant = (b * b) - 4.0f * (a * c);
-
 	//Check for intersections
 	//discrim > 0: 2 solutions
 	//discrim = 0: 1 solution
 	//discrim < 0: 0 solutions
 	if (discriminant >= 0.0f)
 	{
+		//completing the Quadratic Formula:
+		//(-b +- sqrt(dircriminant)) / (2.0f * a)
+		float t0 = (-b - glm::sqrt(discriminant)) / (2.0f * a);
+		float t1 = (-b + glm::sqrt(discriminant)) / (2.0f * a);
+
 		return 0xffff00ff;
 	}
 
